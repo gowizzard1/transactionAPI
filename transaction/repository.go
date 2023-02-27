@@ -37,3 +37,13 @@ func (r *Repository) Create(trans *models.Transaction) error {
 	// Commit the transaction if there were no errors
 	return tx.Commit().Error()
 }
+
+func (r *Repository) Migrate() error {
+	err := r.DB.AutoMigrate(
+		&models.Transaction{},
+	)
+	if err != nil {
+		return err
+	}
+	return nil
+}

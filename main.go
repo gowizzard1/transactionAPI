@@ -50,6 +50,10 @@ func main() {
 	}
 	// new repository
 	repo := transaction.NewRepository(db)
+
+	// perform auto migrations
+	// TODO: use migration tool
+	repo.Migrate()
 	// new service
 	service := transaction.NewService(*repo)
 	// new controller
