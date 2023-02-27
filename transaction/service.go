@@ -1,40 +1,50 @@
 package transaction
 
 import (
-	"sync"
 	"transationAPI/interfaces/transaction"
+	"transationAPI/models"
 )
 
 type service struct {
-	balance float64
-	mux     sync.Mutex
-	repo    Repository
+	repo Repository
 }
 
-func NewService(balance float64, mux *sync.Mutex, repo Repository) transaction.IService {
+func NewService(repo Repository) transaction.IService {
 	return &service{
-		balance: balance,
-		mux:     *mux,
-		repo:    repo,
+		repo: repo,
 	}
 }
 
-func (s *service) Debit(amount float64) error {
-	s.mux.Lock()
-	defer s.mux.Unlock()
-	s.balance -= amount
+func (s *service) CreateTransaction(trans transaction.TransactionRequest) error {
+	// get current balance
+	bal, err := s.repo.GetBalance()
+	if err != nil {
+		// handle error
+	}
+	var amount float64
+	switch trans.Type {
+	case "credit":
+		amount = trans.Amount
+
+	case "debit":
+		amount = -(trans.Amount)
+	}
+	newBal := *bal + amount
+	transaction := models.Transaction{
+		Amount:  trans.Amount,
+		Type:    trans.Type,
+		Balance: newBal,
+	}
+	if err := s.repo.Create(&transaction); err != nil {
+		return err
+	}
 	return nil
 }
 
-func (s *service) Credit(amount float64) error {
-	s.mux.Lock()
-	defer s.mux.Unlock()
-	s.balance += amount
-	return nil
-}
-
-func (s *service) Balance() float64 {
-	s.mux.Lock()
-	defer s.mux.Unlock()
-	return s.balance
+func (s *service) Balance() *float64 {
+	bal, err := s.repo.GetBalance()
+	if err != nil {
+		// handle error
+	}
+	return bal
 }

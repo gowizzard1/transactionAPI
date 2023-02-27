@@ -1,17 +1,44 @@
 package main
 
 import (
+	"fmt"
+	"github.com/jinzhu/gorm/dialects/postgres"
+	"github.com/joho/godotenv"
 	"gorm.io/gorm"
 	"log"
 	"net/http"
-	"sync"
+	config2 "transationAPI/config"
 	gorm2 "transationAPI/database/gorm"
 	"transationAPI/transaction"
 )
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		return
+	}
 
-	dsn := "host=localhost user=postgres password=secret dbname=mydatabase port=5432 sslmode=disable TimeZone=UTC"
+	host, err := config2.Get("HOST")
+	if err != nil {
+		return
+	}
+	user, err := config2.Get("DB_USER")
+	if err != nil {
+		return
+	}
+	dbName, err := config2.Get("DB_NAME")
+	if err != nil {
+		return
+	}
+	dbPass, err := config2.Get("DB_PASSWORD")
+	if err != nil {
+		return
+	}
+	dbPort, err := config2.Get("DB_PORT")
+	if err != nil {
+		return
+	}
+	dsn, _ := fmt.Printf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=UTC", host, user, dbPass, dbName, dbPort)
 	dialector := postgres.Open(dsn)
 	config := gorm.Config{}
 	maxOpenConns := 10
@@ -21,18 +48,14 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	// starting balance
-	bal := 1000.0
-
 	// new repository
 	repo := transaction.NewRepository(db)
 	// new service
-	service := transaction.NewService(bal, &sync.Mutex{})
+	service := transaction.NewService(*repo)
 	// new controller
 	controller := transaction.NewController(service)
 
-	http.HandleFunc("/debit", controller.Debit)
-	http.HandleFunc("/credit", controller.Credit)
+	http.HandleFunc("/create", controller.Create)
 	http.HandleFunc("/balance", controller.Balance)
 
 	log.Fatal(http.ListenAndServe(":8080", nil))

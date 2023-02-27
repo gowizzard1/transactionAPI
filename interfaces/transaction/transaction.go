@@ -8,3 +8,8 @@ type TransactionResponse struct {
 	Status  string
 	Message string
 }
+
+type TransactionRequest struct {
+	Amount float64
+	Type   string
+}
