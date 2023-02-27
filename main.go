@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/joho/godotenv"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
 	"net/http"
@@ -38,7 +38,7 @@ func main() {
 	if err != nil {
 		return
 	}
-	dsn, _ := fmt.Printf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=UTC", host, user, dbPass, dbName, dbPort)
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=UTC", host, user, dbPass, dbName, dbPort)
 	dialector := postgres.Open(dsn)
 	config := gorm.Config{}
 	maxOpenConns := 10
