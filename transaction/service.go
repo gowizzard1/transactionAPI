@@ -31,9 +31,10 @@ func (s *service) CreateTransaction(trans transaction.TransactionRequest) error 
 	}
 	newBal := *bal + amount
 	transaction := models.Transaction{
-		Amount:  trans.Amount,
-		Type:    trans.Type,
-		Balance: newBal,
+		Amount:      trans.Amount,
+		Type:        trans.Type,
+		Description: trans.Description,
+		Balance:     newBal,
 	}
 	if err := s.repo.Create(&transaction); err != nil {
 		return err

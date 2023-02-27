@@ -10,6 +10,7 @@ type TransactionResponse struct {
 }
 
 type TransactionRequest struct {
-	Amount float64
-	Type   string
+	Amount      float64
+	Type        string
+	Description string
 }
